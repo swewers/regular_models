@@ -1,0 +1,6 @@
+# ignore .pyc etc
+*.pyc
+
+# ignore directories which do not contain code
+test/
+build/
