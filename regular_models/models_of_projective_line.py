@@ -413,9 +413,6 @@ def resolution_chain(xi0, xi1=None):
         t0 = v0(phi)
         t1 = v1(phi)
     path = shortest_path(N, t0, t1)[:-1]
-    print "v_0 = ", v0
-    print "phi = ", phi
-    print "path = ", path
     w_list = [v0.augmentation(phi, s) for s in path]
     return [X_K.point_from_pseudovaluation_on_polynomial_ring(w, y)
             for w in w_list]
