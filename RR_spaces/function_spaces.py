@@ -23,10 +23,13 @@ def relation_space(F, f_list):
 
     OUTPUT: suppose ``f_list`` is `[f_1,\ldots,f_n]`. Then we return a list
     consisting of basis vectors of the space of all `K`-linear relations
-    between the `f_i`.
+    between the `f_i`. So the output will be a list of vectors in `K^n`.
 
     """
-    pass
+    from sage.matrix.constructor import matrix
+    vector_list, _ = vector_representation(F, f_list)
+    A = matrix(vector_list)
+    return A.kernel().basis()
 
 
 def vector_representation(F, f_list):
@@ -68,7 +71,7 @@ def vector_representation(F, f_list):
         d = F.degree()
         coeff_list = []
         for f in f_list:
-            coeff_list += f.list()
+            coeff_list += F(f).list()
         vector_list1, basis1 = vector_representation(F0, coeff_list)
         N = len(basis1)
         basis = []
