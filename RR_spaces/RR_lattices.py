@@ -61,6 +61,7 @@ class RRSpace(SageObject):
         self._F = F
         self._rational_basis = basis_of_function_space(F, gens)
         self._valuations = {}
+        self._reduced_basis = {}
 
     def __repr__(self):
         return "the Riemann-Roch space with basis {}".format(self.rational_basis())
@@ -109,8 +110,166 @@ class RRSpace(SageObject):
                 print "this key is already in use"
         self._valuations[key] = v
 
-    def simple_RR_lattice(self, key):
+    def reduced_basis(self, val_key):
+        r""" Return a reduced basis with respect to one valuation.
+
+        INPUT:
+
+        - ``val_key`` -- a key for a registered valuations
+
+        OUTPUT:
+
+        a basis `(f_1,..,f_r)` of this Riemann_Roch space which is reduced with
+        respect to `v`, the valuation corresponding to ``val_key``.
+
+        Reducedness means that for every linear combination of the basis
+
+        .. MATH::
+
+            f = a_1f_1 + \ldot + a_rf_r
+
+        we have
+
+        .. MATH::
+
+            v(f) = \min_i v(a_if_i).
+
+        """
+        if val_key in self._reduced_basis:
+            return self._reduced_basis[val_key]
+        else:
+            K = self.base_field()
+            basis = self.rational_basis()
+            v = self.valuations()[val_key]
+            reduced_basis = make_reduced_basis(K, basis, v)
+            self._reduced_basis[val_key] = reduced_basis
+            return reduced_basis
+
+    def simple_RR_lattice(self, val_key, m):
+        r""" Return the simple RR lattice.
+
+        INPUT:
+
+        - ``val_key`` -- a key for a registered valuations
+        - ``m`` -- an integer
+
+        OUTPUT:
+
+        The lattice `M_{v,m}` inside the Riemann-Roch space `M_K\subset F`
+        defined by the inequality
+
+        .. MATH::
+
+            v(f) \geq m,
+
+        (where `v` is the valuation on the function field `F` corresponding to
+        ``val_key``.
+
+        """
         pass
 
     def RR_lattice(self, key_list):
         pass
+
+
+# ----------------------------------------------------------------------------
+
+#                    auxiliary functions
+
+
+def make_reduced_basis(K, B, v):
+    r""" Return a reduced basis.
+
+    INPUT:
+
+    - ``K`` -- a field
+    - ``B`` -- a list of `K`-linearly independent elements `f_i` of a field
+      extension `F/K`
+    - ``v`` -- a discrete valuation on `F`
+
+    It is expected that the restriction `v_K:=v|_K` is nontirvial, that
+    `F/K` is a function field in one variable, and that the
+    residue field `k(v)` of `v` is also a function field over the residue field
+    `k` of `v_K`.
+
+    OUTPUT:
+
+    A new basis `B_1` of the `K`-span of `B`, which is reduced with respect to
+    `v`.
+
+    """
+    v_K = v.restriction(K)
+    B_red = [B[0]]
+    for i in range(1, len(B)):
+        g = B[i]
+        a = make_reduced(v_K, g, B_red, v)
+        h = g + sum([a[j]*B[j] for j in range(i)])
+        B_red.append(h)
+    return B_red
+
+
+def make_reduced(v_K, g, B, v):
+    r""" Return the reduction of an element with respect to a reduced basis.
+
+    INPUT:
+
+    - ``v_K`` -- a discrete valuation on a field `K`
+    - ``g`` -- a nonzero element of a finled extension `F/K`
+    - ``B`` -- a list of `K`-linearly independent elements of `F`
+    - ``v`` -- a discrete valuation on `v`, extending `v_K`
+
+    It is assumed that `B` is reduced with respect to `v`, and that `g` does
+    not lie in the `K`-span of `B`.
+
+    OUTPUT:
+
+    Write `B = [f_1,\ldots,f_r]`. Then the output is a list `[a_1,\ldots,a_r]`
+    of elements of `K` such that `v(h)` is maximal, with
+
+    .. MATH::
+
+        h := g + \sum_i a_i f_i.
+
+    """
+    from function_spaces import FunctionSpace
+    K = v_K.domain()
+    pi = v_K.uniformizer()
+    # we want to normalize v_K
+    v_K = v_K/v_K(pi)
+    k = v_K.residue_field()
+    k_v = v.residue_field()
+    h = g
+    a = [K.zero() for i in range(len(B))]
+    e_B = [v(f) for f in B]
+    while True:
+        e_h = v(h)
+        h0 = v.element_with_valuation(e_h)
+        hb = v.reduce(h/h0)
+        Bb = [v.reduce(B[i]*h0**(-1)*pi**((e_h-e_B[i]).ceil())) for i in range(len(B))]
+        Mb = FunctionSpace(k, k_v, Bb)
+        is_in_Mb, cb = Mb.is_in(hb)
+        if is_in_Mb:
+            c = [v_K.lift(cb[i]) for i in range(len(cb))]
+            for i in range(len(a)):
+                a[i] -= c[i]*pi**((e_h-e_B[i]).ceil())
+            h_new = g + sum([a[i]*B[i] for i in range(len(B))])
+
+            # this is only for debugging:
+            if v(h_new) <= e_h:
+                print "B = ", B
+                print "e_B = ", e_B
+                print "h = ", h
+                print "e_h = ", e_h
+                print "h0 = ", h0
+                print "hb = ", hb
+                print "Bb = ", Bb
+                print "cb = ", cb
+                print "c = ", c
+                print "a = ", a
+                print "h_new = ", h_new
+                return None
+
+            h = h_new
+            assert v(h) > e_h, "something is wrong!"
+        else:
+            return a
