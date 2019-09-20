@@ -56,15 +56,17 @@ class RRSpace(SageObject):
     """
 
     def __init__(self, v_K, F, gens):
+        from function_spaces import basis_of_function_space
         self._v_K = v_K
         self._F = F
-        self._gens
+        self._rational_basis = basis_of_function_space(F, gens)
+        self._valuations = {}
 
     def __repr__(self):
         return "the Riemann-Roch space with basis {}".format(self.rational_basis())
 
     def base_field(self):
-        return self._K
+        return self._v_K.domain()
 
     def base_valuation(self):
         return self._v_K
@@ -73,22 +75,39 @@ class RRSpace(SageObject):
         return self._F
 
     def rational_basis(self):
-        pass
+        r""" Return a basis for this Riemann-Roch space.
+        """
+        if hasattr(self, "_rational_basis"):
+            return self._rational_basis
 
-    def add_valuation(self, v):
+    def valuations(self):
+        return self._valuations
+
+    def add_valuation(self, v, key=None):
         r""" Add a valuation to the database, and return the key.
 
         INPUT:
 
         - ``v`` -- a discrete valuation on the function field `F`
+        - ``key`` -- a string, or number, or .. (default=None)
 
         OUTPUT: the key for `v` in the database.
 
         The valuation `v` is added to the database of valuations, and its key is
         returned. It is expected that `v` is an extension of `v_K`, and that it
         has not been added before; but this is not checked.
+
+        If ``key`` is given, it is used as the key. Otherwise, the key will be
+        the index of `v`` in the database.
         """
-        pass
+        if not key:
+            key = len(self._valuations)
+        if key in self._valuations.keys():
+            try:
+                key = key + 1
+            except ValueError:
+                print "this key is already in use"
+        self._valuations[key] = v
 
     def simple_RR_lattice(self, key):
         pass
