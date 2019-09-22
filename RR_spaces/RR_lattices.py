@@ -56,30 +56,56 @@ class RRSpace(SageObject):
     """
 
     def __init__(self, v_K, F, gens):
-        from function_spaces import basis_of_function_space
-        self._v_K = v_K
-        self._F = F
-        self._rational_basis = basis_of_function_space(F, gens)
+        from function_spaces import FunctionSpace
+        K = v_K.domain()
+        self._constant_base_field = K
+        self._base_valuation = v_K
+        self._function_field = F
+        self._function_space = FunctionSpace(K, F, gens)
         self._valuations = {}
         self._reduced_basis = {}
+        self._simple_lattices = {}
 
     def __repr__(self):
         return "the Riemann-Roch space with basis {}".format(self.rational_basis())
 
-    def base_field(self):
-        return self._v_K.domain()
+    def constant_base_field(self):
+        return self._constant_base_field
 
     def base_valuation(self):
-        return self._v_K
+        return self._base_valuation
 
     def function_field(self):
-        return self._F
+        return self._function_field
+
+    def function_space(self):
+        return self._function_space
 
     def rational_basis(self):
         r""" Return a basis for this Riemann-Roch space.
         """
-        if hasattr(self, "_rational_basis"):
-            return self._rational_basis
+        return self.function_space().basis()
+
+    def dimension(self):
+        return self.function_space().dimension()
+
+    def vector(self, f):
+        r""" Return the vector representation of `f`.
+
+        INPUT:
+
+        - ``f`` -- an element of the function field `F`
+
+        OUTPUT:
+
+        If `f` is an element of this Riemann Roch space then the vector
+        representing `f` as a linear combination of the standard basis
+        is returned.
+
+        Otherwise, ``None`` is returned.
+
+        """
+        return self.function_space().vector(f)
 
     def valuations(self):
         return self._valuations
@@ -138,7 +164,7 @@ class RRSpace(SageObject):
         if val_key in self._reduced_basis:
             return self._reduced_basis[val_key]
         else:
-            K = self.base_field()
+            K = self.constant_base_field()
             basis = self.rational_basis()
             v = self.valuations()[val_key]
             reduced_basis = make_reduced_basis(K, basis, v)
@@ -151,7 +177,7 @@ class RRSpace(SageObject):
         INPUT:
 
         - ``val_key`` -- a key for a registered valuations
-        - ``m`` -- an integer
+        - ``m`` -- a rational number
 
         OUTPUT:
 
@@ -162,15 +188,123 @@ class RRSpace(SageObject):
 
             v(f) \geq m,
 
-        (where `v` is the valuation on the function field `F` corresponding to
+        where `v` is the valuation on the function field `F` corresponding to
         ``val_key``.
 
         """
-        pass
+        if (val_key, m) in self._simple_lattices:
+            return self._simple_lattices[(val_key, m)]
+        else:
+            v_K = self.base_valuation()
+            pi = v_K.uniformizer()
+            e = v_K(pi)
+            v = self.valuations()[val_key]
+            reduced_basis = self.reduced_basis(val_key)
+            k = [((m - v(f))/e).ceil() for f in reduced_basis]
+            lattice_basis = [pi**k[i]*reduced_basis[i] for i in range(len(k))]
+            lattice = RRLattice(self, lattice_basis)
+            self._simple_lattices[(val_key, m)] = lattice
+            return lattice
 
-    def RR_lattice(self, key_list):
-        pass
+    def RR_lattice(self, inequalities):
+        r""" Return the RR lattice defined by a list in inequalities.
 
+        INPUT:
+
+        - ``inequalities`` -- a list of pairs (``val_key``, `m`)
+
+        Here ``val_key`` is the key for a registered valuation on `F`, and `m`
+        is a rational number.
+
+        OUTPUT:
+
+        The full lattice inside this Riemann Roch space defined by the
+        simultaneous inequalities
+
+        .. MATH::
+
+            v(f) \geq m,
+
+        where `v` is the valuation corresponding to ``val_key``.
+
+        """
+        assert len(inequalities) > 0, "there must be at least one inequality"
+        M = self.simple_RR_lattice(inequalities[0][0], inequalities[0][1])
+        for val_key, m in inequalities[1:]:
+            M_new = self.simple_RR_lattice(val_key, m)
+            M = M.intersection(M_new)
+        return M
+
+
+class RRLattice(SageObject):
+    r""" Return the lattice in a Riemann-Roch space with given generators.
+
+    INPUT:
+
+    - ``M_K`` -- a Riemann-Roch space
+    - ``gens`` -- a list of elements of `M_K`
+
+    OUTPUT: the lattice in `M_K` spanned by ``gens``.
+
+    """
+
+    def __init__(self, M_K, gens):
+        from RR_spaces.lattices import DVR_Lattice
+        F = M_K.function_field()
+        v_K = M_K.base_valuation()
+        assert all([f in F for f in gens]), "the generators must lie in the function field F"
+        vectors = [M_K.vector(f) for f in gens]
+        d = M_K.dimension()
+        lattice = DVR_Lattice(v_K, vectors)
+        self._RR_space = M_K
+        self._lattice = lattice
+        basis_vectors = lattice.basis()
+        rational_basis = M_K.rational_basis()
+        lattice_basis = []
+        for v in basis_vectors:
+            g = sum([v[i]*rational_basis[i] for i in range(d)])
+            lattice_basis.append(g)
+        self._basis = lattice_basis
+
+    def __repr__(self):
+        return "the lattice with basis {}".format(self.basis())
+
+    def base_field(self):
+        return self.RR_space().constant_base_field()
+
+    def base_valuation(self):
+        return self.RR_space().base_valuaton()
+
+    def RR_space(self):
+        return self._RR_space
+
+    def basis(self):
+        return self._basis
+
+    def rank(self):
+        return len(self.basis())
+
+    def intersection(self, M):
+        r""" Return the intersection of this lattice with another one.
+
+        INPUT:
+
+        - ``M`` -- a lattice inside the same Riemann Roch space
+
+        OUTPUT: the lattice which is the intersection of `M` with ``self``.
+
+        """
+        M_K = self.RR_space()
+        d = M_K.dimension()
+        assert M.RR_space() is M_K, "M must lie in the same RR space as self"
+        new_lattice = self._lattice.intersection(M._lattice)
+        basis_vectors = new_lattice.basis()
+        rational_basis = M_K.rational_basis()
+        new_lattice_basis = []
+        for v in basis_vectors:
+            g = sum([v[i]*rational_basis[i] for i in range(d)])
+            new_lattice_basis.append(g)
+        return RRLattice(M_K, new_lattice_basis)
 
 # ----------------------------------------------------------------------------
 
@@ -247,7 +381,7 @@ def make_reduced(v_K, g, B, v):
         hb = v.reduce(h/h0)
         Bb = [v.reduce(B[i]*h0**(-1)*pi**((e_h-e_B[i]).ceil())) for i in range(len(B))]
         Mb = FunctionSpace(k, k_v, Bb)
-        is_in_Mb, cb = Mb.is_in(hb)
+        is_in_Mb, cb = Mb.is_in(hb, coefficients=True, generators=True)
         if is_in_Mb:
             c = [v_K.lift(cb[i]) for i in range(len(cb))]
             for i in range(len(a)):
