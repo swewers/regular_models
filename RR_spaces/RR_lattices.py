@@ -337,7 +337,7 @@ def make_reduced_basis(K, B, v):
     for i in range(1, len(B)):
         g = B[i]
         a = make_reduced(v_K, g, B_red, v)
-        h = g + sum([a[j]*B[j] for j in range(i)])
+        h = g + sum([a[j]*B_red[j] for j in range(i)])
         B_red.append(h)
     return B_red
 

@@ -139,7 +139,9 @@ def superelliptic_decomposition(G):
     assert superelliptic, "The equation G does not define a smooth superelliptic curve (or not implemented yet)"
     assert G.coefficient({y:0}).is_squarefree(), "The superelliptic curve is not smooth."
     R.<x> = K[]
-    return [R(G.coefficient({y:0})),G.degree(y)]def lci(xi):
+    return [R(G.coefficient({y:0})),G.degree(y)]
+
+def lci(xi):
     r""" Realize the component corresponding to xi as a local complete intersection.
 
         INPUT:
