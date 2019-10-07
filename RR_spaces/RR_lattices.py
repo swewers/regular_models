@@ -407,4 +407,3 @@ def make_reduced(v_K, g, B, v):
             assert v(h) > e_h, "something is wrong!"
         else:
             return a
-
