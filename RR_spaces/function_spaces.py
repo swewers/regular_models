@@ -252,9 +252,9 @@ def vector_representation(K, F, f_list):
         f = f_list[i]
         v = vector_list[i]
         if sum([v[j]*basis[j] for j in range(len(basis))]) != f:
-            print "Error in vector_representation"
-            print "f_list = ", f_list
-            print "vector_list = ", vector_list
-            print "basis = ", basis
+            print("Error in vector_representation")
+            print("f_list = ", f_list)
+            print("vector_list = ", vector_list)
+            print("basis = ", basis)
             raise ValueError()
     return vector_list, basis

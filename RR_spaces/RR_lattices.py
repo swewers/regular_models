@@ -133,7 +133,7 @@ class RRSpace(SageObject):
             try:
                 key = key + 1
             except ValueError:
-                print "this key is already in use"
+                print("this key is already in use")
         self._valuations[key] = v
 
     def reduced_basis(self, val_key):
@@ -390,17 +390,17 @@ def make_reduced(v_K, g, B, v):
 
             # this is only for debugging:
             if v(h_new) <= e_h:
-                print "B = ", B
-                print "e_B = ", e_B
-                print "h = ", h
-                print "e_h = ", e_h
-                print "h0 = ", h0
-                print "hb = ", hb
-                print "Bb = ", Bb
-                print "cb = ", cb
-                print "c = ", c
-                print "a = ", a
-                print "h_new = ", h_new
+                print("B = ", B)
+                print("e_B = ", e_B)
+                print("h = ", h)
+                print("e_h = ", e_h)
+                print("h0 = ", h0)
+                print("hb = ", hb)
+                print("Bb = ", Bb)
+                print("cb = ", cb)
+                print("c = ", c)
+                print("a = ", a)
+                print("h_new = ", h_new)
                 return None
 
             h = h_new
