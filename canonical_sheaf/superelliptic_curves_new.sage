@@ -72,7 +72,6 @@ def canonical_sheaf_global_sections(f,n, v_K):
     F.<y> = F0.extension(y^n - F0(f))
 
     B = [F(b) for b in differential_basis_baker(G)]
-    print B;
     M_K = RRSpace(v_K, F, B)
     m=[]
     i=0
