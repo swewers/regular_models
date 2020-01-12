@@ -78,13 +78,15 @@ def canonical_sheaf_global_sections(f,n, v_K):
     for E in X.vertical_components():
         xi = E.generic_point()
         v = xi.pseudovaluation_on_polynomial_ring()
-        if not v(v.phi()) == 0:
-            i+=1
-            v0 = F0.valuation(v)
-            w0 = v0.extensions(F)[0]
-            M_K.add_valuation(w0, "w{0}".format(i))
+        v0 = F0.valuation(v)
+        w0 = v0.extensions(F)[0]
+        M_K.add_valuation(w0, "w{0}".format(i))
+        if v(v.phi()) == 0:
+            mv = 0
+        else:
             #mv is the order of `\eta = dx/y^{n-1}` on the component E
             e = w0.value_group().index(v0.value_group());
             mv = ord_dx(xi)-w0(y)*(n-1)+ e-1;
-            m.append(("w{0}".format(i),-mv))
+        m.append(("w{0}".format(i),-mv))
+        i+=1
     return M_K.RR_lattice(m)
