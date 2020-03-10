@@ -17,7 +17,7 @@ def lci(xi):
     K = v.phi().base_ring()
     x = v.phi().variables()[0]
     u = v.uniformizer()
-    if u in K: #u needs to be a uniformizer on the special fibre localized at xi. Hence it is not allowed to be equal to the prime element pi in O_K.
+    if u in K: #u needs to be a uniformizer on the special fibre localized at xi. Hence it is not allowed to be equal to the prime element `\pi` in `O_K`.
         k = v(v.phi())
         u = v.phi()/v.uniformizer()**(k-1) 
     t = v.lift(v.residue_ring().gen())
