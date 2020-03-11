@@ -245,7 +245,7 @@ class ModelOfProjectiveLine(SageObject):
         """
         X = self
         X.make_rnc_model()
-        print "Minimal rnc model is not yet implemented."
+        print("Minimal rnc model is not yet implemented.")
 
     def show_tree(self):
         r""" Show a graphic representation of the component tree.
