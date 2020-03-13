@@ -2,11 +2,61 @@ r"""
 Models of the projective line
 =============================
 
+In this module we implement the algorithm described in Section 4 of our preprint
+
+.. [KunzweilerWewers20] S. Kunzweiler and S. Wewers, Regular models of curves
+    and tame ramification.
+
+
 Let `K` be a field with a discrete valuation `v_K` and valuation ring `R`.
 Let `X_K` denote the projective line over `K`. A *model* of `X_K` is a proper,
-flat and normal `R`-scheme with generic fiber `X_K`.
+flat and normal `R`-scheme 'X' with generic fiber `X_K`.
+
+Let `D_K\subset X_K` be an effective and reduced divisor. For a model `X` of
+`X_K`, let `X_s` denote the reduced special fiber of `X`, `D^{\rm hor}\subset X`
+the closure of `D_K` and `D:=X_s\cup D^{\rm hor}`. Our goal is to find a regular
+model `X` such that `D` is a normal crossing divisor.
+
+
+
+AUTHORS:
+
+- Stefan Wewers (2019): initial version
+
+
+EXAMPLES::
+
+    sage: from regular_models.models_of_projective_line import *
+
+We compute the regular rnc-model from [KunzweilerWewers20]_, Example 8.1. ::
+
+    sage: v_2 = QQ.valuation(2)
+    sage: R.<x> = QQ[]
+    sage: f = (x^3-2^4)*((x+2)^2+2^3)*((x+2)^2-2^3)
+    sage: X = minimal_rnc_model(f, v_2)
+    sage: X.vertical_components()
+    [vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x + 2) >= 3/2,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 4/3,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 0,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 1,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x^2 + 4*x + 12) >= 4,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x^2 + 4*x + 12) >= 7/2,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x + 2) >= 2,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 2,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 3/2]
 
 """
+
+# *****************************************************************************
+#       Copyright (C) 2019 Stefan Wewers <stefan.wewers@uni-ulm.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# *****************************************************************************
+
 
 from sage.all import SageObject
 
@@ -29,6 +79,7 @@ def minimal_rnc_model(f, v_K):
     2. `(X,D)` is an *rnc-pair*, meaning that the union of `D` with the special fiber
       of `X` is a reduced normal crossing divisor
     3. `(X,D)` is minimal under Conditions 1 and 2.
+
 
     """
     A = f.parent()
@@ -57,6 +108,16 @@ class ModelOfProjectiveLine(SageObject):
     vertical prime divisors of the model. These can be added, for instance,
     using the method ``add_component``.
 
+    EXAMPLES::
+
+        sage: from regular_models.models_of_projective_line import *
+
+    We create an empty model over the 2-adic integers.::
+
+        sage: v_2 = QQ.valuation(2)
+        sage: ModelOfProjectiveLine(v_2)
+        model of the projective line over 2-adic valuation
+
     """
 
     def __init__(self, v_K, var_name="x"):
@@ -77,6 +138,8 @@ class ModelOfProjectiveLine(SageObject):
         # the flag '_changed' indicated whether the model has been changed after
         # the last computation of the intersection numbers
         self._changed = False
+        self._is_rnc = False
+        self._is_minimal_rnc = False
 
     def __repr__(self):
         return "model of the projective line over {}".format(self.base_valuation())
@@ -102,6 +165,9 @@ class ModelOfProjectiveLine(SageObject):
     def horizontal_components(self):
         return self._horizontal_components
 
+    def components(self):
+        return self.vertical_components() + self.horizontal_components()
+
     def is_component(self, xi):
         r""" Return whether xi is the generic point of a component.
 
@@ -116,18 +182,14 @@ class ModelOfProjectiveLine(SageObject):
 
         """
         T = self.tree()
-        if T.root():
-            vertex = T.find_point(xi)
-        else:
-            # this is only necessary because of a bug in mclf
-            vertex = False
+        vertex = T.find_point(xi)
         if not vertex:
             return False
         if xi.type() == "II":
-            return not all([not comp.vertex() is vertex
+            return not all([not comp.vertex().root().is_equal(xi)
                             for comp in self.vertical_components()])
         else:
-            return not all([not comp.vertex() is vertex
+            return not all([not comp.vertex().root().is_equal(xi)
                             for comp in self.horizontal_components()])
 
     def add_component(self, xi):
@@ -145,6 +207,11 @@ class ModelOfProjectiveLine(SageObject):
         assert xi.berkovich_line() is self.berkovich_line(), "xi must be a point\
             on the Berkovich line underlying this model"
         X = self
+        if not X.is_component(xi):
+            ComponentOfModel(X, xi)
+            X._changed = True
+
+        """
         T = X.tree()
         # we have to first check whether xi is already a component !
         # the first condition should be unnecessary; this is a bug in
@@ -159,6 +226,23 @@ class ModelOfProjectiveLine(SageObject):
                 self._vertical_components.append(component)
             # we report that the model has changed
             self._changed = True
+        """
+
+    def remove_component(self, component):
+        r""" Remove this component from the model.
+
+        INPUT:
+
+        - ``component`` - a component of a model of the projective line
+
+        We remove the given component from the model. If it is a vertical
+        component, this amounts to a modification of the model in which the
+        given component is contracted. If it is a horizontal component then the
+        model `X` itself remains unchanged.
+
+        """
+        component.remove()
+        self._changed = True
 
     def add_horizontal_divisor(self, f):
         r""" Add the zeroes and poles of `f` to the horizontal divisor.
@@ -179,8 +263,9 @@ class ModelOfProjectiveLine(SageObject):
     def make_inf_closed(self):
         r""" Add vertical components to make the tree inf-closed.
 
-        We add vertical components to the component tree such that it is inf-closed.
-        As a result, any point on the special fiber will lie on at most two components.
+        We add vertical components to the set of components such that it becomes
+        inf-closed. As a result, any point on the special fiber will lie on at
+        most two components.
 
         """
         X = self
@@ -191,30 +276,30 @@ class ModelOfProjectiveLine(SageObject):
     def make_rnc_model(self):
         r""" Refine the model to a regular rnc model.
 
-        This seems to work now for the vertical components.
+        We refine the model `X` such that it becomes a regular model and such
+        that the divisor `D` is a normal crossing divisor.
 
-        I still need to find out how to deal with the horzontal components.
+        We follow the Algorithm 4.11 from [KunzweilerWewers20]_:
+
+        1. We add all the predecessors of all components
+        2. We take the inf-closure
+        3. We follow Algorithm 4.14.
 
         """
         X = self
-        X.make_inf_closed()
-        X.add_component(X.berkovich_line().gauss_point())
-        # X.make_rnc_model_from_component(X.tree())
-        T = X.tree()
-        # the component set is inf_closed, therefore T is exactly the component
-        # tree
-        # we make sure that for any vertex of the tree, all its predecessors
-        # are also components
-        new_components = []
-        for xi in T.vertices():
+
+        # Step 1
+        for E in X.components():
+            xi = E.vertex().root()
             for xi1 in predecessors(xi):
-                new_components.append(xi1)
-        for xi in new_components:
-            X.add_component(xi)
-        # the component tree may have changed:
-        T = X.tree()
+                X.add_component(xi1)
+
+        # Step 2
+        X.make_inf_closed()
+
+        # Step 3
         new_components = []
-        # now we add the resolution chains
+        T = X.tree()
         for subtree in T.subtrees():
             xi0 = subtree.root()
             eta = critical_residue_class(xi0)
@@ -231,6 +316,7 @@ class ModelOfProjectiveLine(SageObject):
                     new_components.append(xi)
         for xi in new_components:
             X.add_component(xi)
+        X._is_rnc = True
 
     def make_minimal_rnc_model(self, components_to_keep=[]):
         r""" Refine the model to a minimal rnc model.
@@ -244,24 +330,69 @@ class ModelOfProjectiveLine(SageObject):
 
         """
         X = self
-        X.make_rnc_model()
-        print("Minimal rnc model is not yet implemented.")
+        if not X._is_rnc:
+            X.make_rnc_model()
+        if not X._is_minimal_rnc:
+            while True:
+                E = X.removable_component()
+                if E:
+                    X.remove_component(E)
+                else:
+                    break
+        X._is_minimal_rnc = True
+
+    def removable_component(self):
+        r""" Return a removable component (if one exists).
+
+        OUTPUT:
+
+        a removable component, if one exists, or ``None`` otherwise.
+
+        We assume that the model `X` is regular and the divisor `D` a normal
+        corssing divisor. Then a vertical component `E` is called *removable*
+        if it has self-intersection number `-1` and meets at most two other
+        components, *and* no horizontal component.
+
+        This latter condition may not be necessary. However, the way we
+        construct an rnc model it will typically be necessary.
+
+        If the rnc assumption is true and the method returns ``None``, then we
+        can conclude that the model is the minimal rnc model.
+
+        However, if the model is not rnc, then the output is also ``None``,
+        and no conclusion can be drawn from this information.
+
+        """
+        if not self._is_rnc:
+            return None
+        for E in self.vertical_components():
+            if (E.valency() <= 2 and E.self_intersection() == -1
+                    and all([E1.is_vertical() for E1 in E.neighbors()])):
+                return E
 
     def show_tree(self):
         r""" Show a graphic representation of the component tree.
 
         """
         G, vertex_dict = self.tree().graph()
+        root = self.tree().root()
         vertical_list = []
         horizontal_list = []
+        no_component_list = []
         for i, xi in vertex_dict.items():
-            if xi.type() == "II":
-                vertical_list.append(i)
+            if xi.is_equal(root):
+                root_index = i
+            if self.is_component(xi):
+                if xi.type() == "II":
+                    vertical_list.append(i)
+                else:
+                    horizontal_list.append(i)
+                print(i, ": ", xi)
             else:
-                horizontal_list.append(i)
-            print(i, ": ", xi)
-        # print(vertex_dict)
-        G.show(partition=[vertical_list, horizontal_list])
+                no_component_list.append(i)
+        vertex_colors = {'red': vertical_list, 'blue': horizontal_list,
+                         'grey': no_component_list}
+        G.show(vertex_colors=vertex_colors, tree_root=root_index, layout='tree')
 
 
 class ComponentOfModel(SageObject):
@@ -270,21 +401,45 @@ class ComponentOfModel(SageObject):
     INPUT:
 
     - ``X`` -- a model of the projective line
-    - ``vertex`` -- a vertex of the component tree of `X`
+    - ``xi`` -- a point of type I or II on the Berkovich line underlying the model
 
-    OUTPUT: an object representing the component corresponding to ``vertex``.
+    OUTPUT: an object representing the component corresponding to ``xi``.
+
+    If no component with generic point `\xi` exists yet, then it is added to the
+    list of components.
 
     """
 
-    def __init__(self, X, vertex):
+    def __init__(self, X, xi):
         self._model = X
+        T = X.tree()
+        T, vertex = T.add_point(xi)
+        X._tree = T
         self._vertex = vertex
-        xi = vertex.root()
         self._generic_point = xi
         self._is_vertical = (xi.type() == "II")
+        # the tree vertex must 'know' the component
+        vertex._attr = {}
+        vertex._attr["component"] = self
+        if self.is_vertical():
+            X._vertical_components.append(self)
+        else:
+            X._horizontal_components.append(self)
 
     def __repr__(self):
         return "{} component corresponding to {}".format(self.type(), self.generic_point())
+
+    def remove(self):
+        """ Remove this component.
+        """
+        X = self.model()
+        self.vertex()._attr.pop("component")
+        T = X.tree().remove_point(self.generic_point())
+        X._tree = T
+        if self.is_vertical():
+            X.vertical_components().remove(self)
+        else:
+            X.horizontal_components().remove(self)
 
     def model(self):
         return self._model
@@ -306,6 +461,46 @@ class ComponentOfModel(SageObject):
             return "vertical"
         else:
             return "horizontal"
+
+    def multiplicity(self):
+        assert self.is_vertical(), "multiplicity of horizontal component is not defined."
+        return self.generic_point().pseudovaluation_on_polynomial_ring().E()
+
+    def valency(self):
+        r""" Return the valency of this component.
+
+        The *valency* of a component is the number of its neighbors, i.e. the
+        other components which intersect it.
+
+        """
+        return len(self.neighbors())
+
+    def neighbors(self):
+        r""" Return the list of the neighbors of this component.
+
+        A *neighbor* of a component is another component which intersects it.
+
+        """
+        vertex = self.vertex()
+        neighbors = vertex.children()
+        if vertex.has_parent():
+            neighbors.append(vertex.parent())
+        return [v._attr["component"] for v in neighbors if "component" in v._attr]
+
+    def self_intersection(self):
+        r""" Return the self-intersection number of this component.
+
+        """
+        from sage.rings.integer_ring import ZZ
+        assert self.is_vertical(), "self-intersection number of horizontal component not defined."
+        ret = sum(E.multiplicity() for E in self.neighbors() if E.is_vertical())
+        ret = -ret/self.multiplicity()
+        assert ret.is_integral(), "something is wrong: self-intersection number is not an integer!"
+        return ZZ(ret)
+
+# ----------------------------------------------------------------------------
+
+#               auxiliary functions
 
 
 def predecessors(xi):
@@ -339,8 +534,15 @@ def critical_residue_class(xi):
 
     - ``xi`` -- a point of type II on the Berkovich line
 
-    OUTPUT: the critical residue class of the discoid with root `\xi`, or
-    ``None`` if it does not exist.
+    OUTPUT: the point of type IV corresponding to the critical residue class of
+    the discoid with root `\xi`, or ``None`` if it is not defined.
+
+    The critical residue class is defined in [KunzweilerWewers20]_, Remark 3.18.
+
+    .. NOTE::
+
+        This method should be made obsolete by including the functionality in
+        ``mclf.berkovich.berkovich_line``.
 
     """
     from sage.rings.infinity import Infinity
@@ -351,10 +553,9 @@ def critical_residue_class(xi):
     v0 = v.augmentation_chain()[1]
     if v.E() == v0.E():
         return None
-    else:
-        phi, _ = xi.discoid()
-        xi1 = xi.berkovich_line().point_from_discoid(phi, Infinity)
-        return TypeVPointOnBerkovichLine(xi, xi1)
+    phi, _ = xi.discoid()
+    xi1 = xi.berkovich_line().point_from_discoid(phi, Infinity)
+    return TypeVPointOnBerkovichLine(xi, xi1)
 
 
 def resolution_chain(xi0, xi1=None):
@@ -369,7 +570,8 @@ def resolution_chain(xi0, xi1=None):
 
     a strictly increasing list of points of type II `\xi` such that
     `\xi_0<\xi<\xi_1` (or `xi_0<\xi` if ``xi1`` is ``None``).
-    These points are determined as follows, see [KunzweilerWewers].
+    These points are determined as follows, see [KunzweilerWewers20]_,
+    Section 4.4.
 
     Assume first that ``\xi1`` is ``None``.
     Let `v` be the inductive valuation corresponding to `\xi_0`,
@@ -378,15 +580,26 @@ def resolution_chain(xi0, xi1=None):
 
         v = [v_0,...,v_n(\phi_n)=\lambda_n].
 
-    Let `N` be the least common denominator of `\lambda_1,\ldots,\lamnda_{n-1}`.
-    Let `\lambda'` be the smallest element of `1/N\mathbb{Z}` strictly larger
-    then `\lambda:=\lambda_n`. Then the points `\xi` correspond to the valuations
+    If `\xi_1` is given, we assume that it corresponds to an inductive valuation
+    `v'` of the form
+
+    .. MATH::
+
+         v' = [v_0,...,v_n(\phi_n)=\lambda_n'],
+
+    where `\lambda_n'>\lambda_n`. If `\xi_1` is not given, then we let
+    `\lambda_n'` be the smallest element of `1/N\mathbb{Z}` strictly larger
+    then `\lambda:=\lambda_n`, where `N` is the least common denominator of
+    `\lambda_1,\ldots,\lamnda_{n-1}`.
+
+    Then the points `\xi` in the resolution chain correspond to the valuations
 
     .. MATH::
 
         v_\mu := [v_0,\ldots, v_n(\phi_n)=\mu],
 
-    and where `\mu` runs through the *shortest path from `\lambda'` to `\lambda`.
+    and where `\mu` runs through the *shortest path* from `\lambda_n'` to
+    `\lambda_n`.
 
     """
     X_K = xi0.berkovich_line()
@@ -484,44 +697,11 @@ def HJ_path(s1, s2):
         d = x - k * d1
         path.append((m, d))
         m1, d1 = m, d
-    """
-    if d1 == 1:
-        N = s2.ceil()
-        path = path + [(i, 1) for i in range(m1 - 1, N - 1, -1)]
-    if m1 / d1 > s2:
-        path2 = HJ_path(N - s2, 0)
-        path = path + [(- m - N * d, d)]
-    """
+
+    # these test are for debugging only, and should be unnecessary by now
     assert path[0][0] / path[0][1] == s1, "first entry not correct: {}".format(path)
     assert path[-1][0] / path[-1][1] == s2, "last entry not correct: {}".format(path)
     assert all([path[i][0] * path[i + 1][1] - path[i + 1][0] * path[i][1] == 1
                 for i in range(len(path) - 1)]), "determinant condition wrong: {}".format(path)
+
     return path
-
-
-def neg_continued_fractions_expansion(y):
-    r""" Return the convergents of the negative continued fraction expansion of y.
-
-    """
-    expansion = []
-    a = y.ceil()
-    expansion = [a]
-    while a > y:
-        y = 1/(a - y)
-        a = y.ceil()
-        expansion.append(a)
-    return expansion
-
-
-def ncf_value(a_list):
-    if len(a_list) == 1:
-        return a_list[0]
-    else:
-        return a_list[0] - 1/ncf_value(a_list[1:])
-
-
-def convergents(a_list):
-    ret = []
-    for i in range(len(a_list)):
-        ret.append(ncf_value(a_list[:i+1]))
-    return ret
