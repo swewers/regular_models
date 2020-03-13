@@ -26,7 +26,7 @@ AUTHORS:
 
 EXAMPLES::
 
-    sage: from regular_models.regular_models.models_of_projective_line import *
+    sage: from regular_models.models_of_projective_line import *
 
 We compute the regular rnc-model from [KunzweilerWewers20]_, Example 8.1. ::
 
@@ -110,7 +110,7 @@ class ModelOfProjectiveLine(SageObject):
 
     EXAMPLES::
 
-        sage: from regular_models.regular_models.models_of_projective_line import *
+        sage: from regular_models.models_of_projective_line import *
 
     We create an empty model over the 2-adic integers.::
 
