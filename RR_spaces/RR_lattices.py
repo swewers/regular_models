@@ -56,7 +56,7 @@ class RRSpace(SageObject):
     """
 
     def __init__(self, v_K, F, gens):
-        from function_spaces import FunctionSpace
+        from regular_models.RR_spaces.function_spaces import FunctionSpace
         K = v_K.domain()
         self._constant_base_field = K
         self._base_valuation = v_K
@@ -249,7 +249,7 @@ class RRLattice(SageObject):
     """
 
     def __init__(self, M_K, gens):
-        from RR_spaces.lattices import DVR_Lattice
+        from regular_models.RR_spaces.lattices import DVR_Lattice
         F = M_K.function_field()
         v_K = M_K.base_valuation()
         assert all([f in F for f in gens]), "the generators must lie in the function field F"
@@ -365,7 +365,7 @@ def make_reduced(v_K, g, B, v):
         h := g + \sum_i a_i f_i.
 
     """
-    from function_spaces import FunctionSpace
+    from regular_models.RR_spaces.function_spaces import FunctionSpace
     K = v_K.domain()
     pi = v_K.uniformizer()
     # we want to normalize v_K
