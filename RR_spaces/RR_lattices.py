@@ -56,7 +56,7 @@ class RRSpace(SageObject):
     """
 
     def __init__(self, v_K, F, gens):
-        from function_spaces import FunctionSpace
+        from regular_models.RR_spaces.function_spaces import FunctionSpace
         K = v_K.domain()
         self._constant_base_field = K
         self._base_valuation = v_K
@@ -133,7 +133,7 @@ class RRSpace(SageObject):
             try:
                 key = key + 1
             except ValueError:
-                print "this key is already in use"
+                print("this key is already in use")
         self._valuations[key] = v
 
     def reduced_basis(self, val_key):
@@ -249,7 +249,7 @@ class RRLattice(SageObject):
     """
 
     def __init__(self, M_K, gens):
-        from RR_spaces.lattices import DVR_Lattice
+        from regular_models.RR_spaces.lattices import DVR_Lattice
         F = M_K.function_field()
         v_K = M_K.base_valuation()
         assert all([f in F for f in gens]), "the generators must lie in the function field F"
@@ -365,7 +365,7 @@ def make_reduced(v_K, g, B, v):
         h := g + \sum_i a_i f_i.
 
     """
-    from function_spaces import FunctionSpace
+    from regular_models.RR_spaces.function_spaces import FunctionSpace
     K = v_K.domain()
     pi = v_K.uniformizer()
     # we want to normalize v_K
@@ -390,17 +390,17 @@ def make_reduced(v_K, g, B, v):
 
             # this is only for debugging:
             if v(h_new) <= e_h:
-                print "B = ", B
-                print "e_B = ", e_B
-                print "h = ", h
-                print "e_h = ", e_h
-                print "h0 = ", h0
-                print "hb = ", hb
-                print "Bb = ", Bb
-                print "cb = ", cb
-                print "c = ", c
-                print "a = ", a
-                print "h_new = ", h_new
+                print("B = ", B)
+                print("e_B = ", e_B)
+                print("h = ", h)
+                print("e_h = ", e_h)
+                print("h0 = ", h0)
+                print("hb = ", hb)
+                print("Bb = ", Bb)
+                print("cb = ", cb)
+                print("c = ", c)
+                print("a = ", a)
+                print("h_new = ", h_new)
                 return None
 
             h = h_new
