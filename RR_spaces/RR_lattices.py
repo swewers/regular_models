@@ -29,7 +29,58 @@ We define a class ``RRSpace`` whose objects represent a triple `(v_K, F/K, M_K)`
 as above. With the available methods it is possible to compute Riemann-Roch
 lattices `M_V`.
 
+
+
+AUTHORS:
+
+- Stefan Wewers (2019): initial version
+
+
+EXAMPLES::
+
+    sage: import regular_models.RR_spaces.RR_lattices
+    sage: from regular_models.RR_spaces.RR_lattices import RRSpace
+
+We first have to define the ambient space::
+
+    sage: F.<x> = FunctionField(QQ)
+    sage: v_2 = QQ.valuation(2)
+    sage: M_K = RRSpace(v_2, F, [(x^2+1)/x, (x+1)/x^2, x^3-1]); M_K
+    the Riemann-Roch space with basis [(x^2 + 1)/x, (x + 1)/x^2, x^3 - 1]
+
+Next we define two valuations on `F` which extend the 2-adic valuation `v_2`,
+and register them::
+
+    sage: R.<x> = QQ[]
+    sage: w0 = GaussValuation(R, v_2)
+    sage: w1 = w0.augmentation(x^2+x+1, 1/2)
+    sage: v0 = F.valuation(w0)
+    sage: v1 = F.valuation(w1)
+    sage: M_K.add_valuation(v0, 'v0')
+    sage: M_K.add_valuation(v1, 'v1')
+    sage: M_K.valuations()
+    {'v0': 2-adic valuation,
+    'v1': Valuation on rational function field induced by [ Gauss valuation induced by 2-adic valuation, v(x^2 + x + 1
+) = 1/2 ]}
+
+We can now create a lattice given by inequalities with respect to v0 and v1::
+
+    sage: M = M_K.RR_lattice([('v0', -1), ('v1', 1/2)]); M
+
+
 """
+
+
+# *****************************************************************************
+#       Copyright (C) 2019 Stefan Wewers <stefan.wewers@uni-ulm.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# *****************************************************************************
+
 
 from sage.all import SageObject
 
@@ -48,7 +99,7 @@ class RRSpace(SageObject):
     includes:
 
     - computing the Riemann-Roch lattice `M_V` for a finite set `V` of discrete
-      valutions on `F` extending `v_K`
+      valuations on `F` extending `v_K`
     - for `V_1\subset V_2`, compute the index `(M_{V_1}:M_{V_2})`
 
     etc.
@@ -125,7 +176,7 @@ class RRSpace(SageObject):
         has not been added before; but this is not checked.
 
         If ``key`` is given, it is used as the key. Otherwise, the key will be
-        the index of `v`` in the database.
+        the index of `v` in the database.
         """
         if not key:
             key = len(self._valuations)
@@ -348,7 +399,7 @@ def make_reduced(v_K, g, B, v):
     INPUT:
 
     - ``v_K`` -- a discrete valuation on a field `K`
-    - ``g`` -- a nonzero element of a finled extension `F/K`
+    - ``g`` -- a nonzero element of a field extension `F/K`
     - ``B`` -- a list of `K`-linearly independent elements of `F`
     - ``v`` -- a discrete valuation on `v`, extending `v_K`
 

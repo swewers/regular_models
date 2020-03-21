@@ -10,7 +10,55 @@ space `V`. Here `K` is a field equipped with a discrete valuation `v_K` and
 For the moment, the `K`-vector space is always a standard vector space `K^n`.
 A lattice `M\subset K^n` is determined by a finite list of generators.
 
+The functionality provided by this class includes
+
+- finding a basis of a lattice given by a list of generators,
+- computing intersections and sums of lattices with the same ambient vector space.
+
+
+AUTHORS:
+
+- Stefan Wewers (2019): initial version
+
+
+EXAMPLES::
+
+    sage: import regular_models.RR_spaces.lattices
+    sage: from regular_models.RR_spaces.lattices import DVR_Lattice
+
+We define a `\mathbb{Z}_2`-lattice of rank `2` inside `\mathbb{Q}^3`. ::
+
+    sage: v_2 = QQ.valuation(2)
+    sage: V = QQ^3
+    sage: v1 = V([1,-1,-2])
+    sage: v2 = V([2, 4, 1])
+    sage: M1 = DVR_Lattice(v_2, [v1, v2]); M1
+    a lattices of rank 2 over the valuation ring of 2-adic valuation
+
+We compute the intersection with another lattice. ::
+
+    sage: w1 = V([0, 2, 1])
+    sage: w2 = V([8, 1, 1])
+    sage: M2 = DVR_Lattice(v_2, [w1, w2])
+    sage: M3 = M1.intersection(M2); M3
+    a lattices of rank 1 over the valuation ring of 2-adic valuation
+    sage: M3.basis()
+    [(32/61, 118/61, 1)]
+
+
 """
+
+
+# *****************************************************************************
+#       Copyright (C) 2019 Stefan Wewers <stefan.wewers@uni-ulm.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# *****************************************************************************
+
 
 from sage.all import SageObject, copy, matrix
 
