@@ -54,19 +54,21 @@ and register them::
     sage: R.<x> = QQ[]
     sage: w0 = GaussValuation(R, v_2)
     sage: w1 = w0.augmentation(x^2+x+1, 1/2)
-    sage: v0 = F.valuation(w0)
+    sage: w2 = w0.augmentation(x + 1, 3/2)
     sage: v1 = F.valuation(w1)
-    sage: M_K.add_valuation(v0, 'v0')
+    sage: v2 = F.valuation(w2)
     sage: M_K.add_valuation(v1, 'v1')
-    sage: M_K.valuations()
-    {'v0': 2-adic valuation,
-    'v1': Valuation on rational function field induced by [ Gauss valuation induced by 2-adic valuation, v(x^2 + x + 1
-) = 1/2 ]}
+    sage: M_K.add_valuation(v2, 'v2')
 
-We can now create a lattice given by inequalities with respect to v0 and v1::
+We can now create a lattice given by inequalities with respect to v1 and v1::
 
-    sage: M = M_K.RR_lattice([('v0', -1), ('v1', 1/2)]); M
-
+    sage: M = M_K.RR_lattice([('v1', -1), ('v2', 1/2)]); M
+    the lattice with basis [(-1/2*x^5 + 1/2*x^3 + 1/2*x^2 + 2*x + 3/2)/x^2, (1/2*x + 1/2)/x^2, x^3 - 1]
+    sage: for f in M.basis():
+    ....:     print((v1(f), v2(f)))
+    (-1/2, 7/2)
+    (-1, 1/2)
+    (1/2, 1)
 
 """
 
