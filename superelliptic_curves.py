@@ -173,6 +173,20 @@ def ord_dx(xi):
     OUTPUT: Assume`\xi`is a point on the Berkovich line with function field K(x).
     Then the algorithm returns the the order of vanishing of `dx` along a component
     with generic point `\xi`.
+
+    EXAMPLE:
+
+        sage: from mclf import *
+        sage: from regular_models.superelliptic_curves import ord_dx
+        sage: v_3 = QQ.valuation(2)
+        sage: F.<x> = FunctionField(QQ)
+        sage: X = BerkovichLine(F, v_3)
+        sage: xi1 = X.point_from_discoid(x, 5)
+        sage: ord_dx(xi1)
+        5
+        sage: xi2 = X.point_from_discoid(x+1, 1/3)
+        sage: ord_dx(xi2)
+        1
     """
     v = xi.pseudovaluation_on_polynomial_ring()
     [F, u, t] = defining_system(xi)
