@@ -38,6 +38,7 @@ AUTHORS:
 
 EXAMPLES::
 
+
     sage: from regular_models.superelliptic_curves import integral_differentials
 
 We can compute the lattice of integral differentials for hyperelliptic curves defined
@@ -48,12 +49,14 @@ over a discretely valued field with odd residue characteristic. ::
     sage: v_3 = QQ.valuation(3)
     sage: integral_differentials(f,2,v_3)
     the lattice with basis [x, 3]
+    
     sage: v_5 = QQ.valuation(5)
-    sage: integral_differentials(f, 2, v_5)
+    sage: integral_differentials(f,2,v_5)
     the lattice with basis [-x + 1, x]
+    
     sage: v_2 = QQ.valuation(2)
     sage: integral_differentials(f,2,v_2)
-    AssertionError
+    Traceback (most recent call last):
     ...
     AssertionError: n must not divide the residue characteristic of K
 
