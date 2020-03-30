@@ -13,11 +13,11 @@ For instance, consider the curve Y of genus 6 over the 2-adic numbers with equat
 We compute a basis of integral differential forms as follows:
 
 ```
-sage: from regular_models.superelliptic_curves import canonical_sheaf_global_sections
+sage: from regular_models.superelliptic_curves import integral_differentials
 sage: v_2 = QQ.valuation(2)
 sage: R.<x> = QQ[]
 sage: f = (x^3-2^4)*((x+2)^2+2^3)*((x+2)^2-2^3)
-sage: canonical_sheaf_global_sections(f, 3, v_2)
+sage: integral_differentials(f, 3, v_2)
 the lattice with basis [x^3 - 4*x, x*y - 16, 2*y - 16, 4*x^2 - 16, 8*x - 16, 16]
 ```
 Thus, a basis is given by f_i(x,y)dx, i=1,..,6, where f_i are the functions on Y in the above list.
