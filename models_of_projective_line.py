@@ -63,7 +63,7 @@ from sage.all import SageObject
 
 def minimal_rnc_model(f, v_K):
     r""" Return the minimal rnc-model of a divisor on the projective line,
-    with respect to a dicrete valuation.
+    with respect to a discrete valuation.
 
     INPUT:
 

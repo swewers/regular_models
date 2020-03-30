@@ -62,7 +62,27 @@ over a discretely valued field with odd residue characteristic. ::
 
 
 It is also possible to compute the integral differentials for superelliptic curves
-`y^n = f(x)`, as long as the residue characteristic does not divide `n`.
+`y^n = f(x)`, as long as the residue characteristic does not divide `n`. For example, 
+we can compute the integral differentials of the curve defined by `y^3 = x^4+2^6` 
+over `\QQ_2`.  ::
+
+    sage: R.<x> = QQ[]
+    sage: v_2 = QQ.valuation(2)
+    sage: f = x^4+2^6
+    sage: integral_differentials(f,3,v_2)
+    the lattice with basis [y - 4, 2*x, 4]
+
+Of course, the same computation is possible over an extension of `\QQ_2`, as well. 
+Here, let `L = \QQ_2(i)`.  ::
+
+    sage: L.<i> = NumberField(x^2+1)
+    sage: S.<x> = L[]
+    sage: vL_2 = L.valuation(2)
+    sage: integral_differentials(S(f),3,vL_2)
+    the lattice with basis [(i + 1)*y, (2*i + 2)*x + 8, 8*i + 8]
+
+
+
 The following is Example 5.2. in the preprint [KunzweilerWewers20]. ::
 
     sage: v_2 = QQ.valuation(2)
@@ -85,9 +105,16 @@ It is possible to compute this covolume w.r.t. some (specified) rational basis o
 This means that `\det(M) = \langle 2^{10} * 1 \land x \land x^2 \land x^3 \land y \land xy \rangle`.
 
 
+We can also compute the integral differentials for curves defined over finite extensions of `\QQ_p`.
+In the following, we compute the integral differentials of the curve defined by `y^3-x^4-2^6`
+over `QQ_2`and over `QQ_2(i)`.  ::
+
+    sage: 
+    
+
 The exponent of the superelliptic curve need not be prime for our algorithm to work.  ::
 
-    sage: f =  (x^2 + 3^4) * ((x-1)^2 - 3^3)
+    sage: f = (x^2 + 3^4) * ((x-1)^2 - 3^3)
     sage: integral_differentials(f,4,v_3)
     the lattice with basis [y, x, 3]
     sage: integral_differentials(f,6,v_5)
