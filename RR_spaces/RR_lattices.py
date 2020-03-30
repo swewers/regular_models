@@ -403,7 +403,7 @@ def make_reduced(v_K, g, B, v):
     - ``v_K`` -- a discrete valuation on a field `K`
     - ``g`` -- a nonzero element of a field extension `F/K`
     - ``B`` -- a list of `K`-linearly independent elements of `F`
-    - ``v`` -- a discrete valuation on `v`, extending `v_K`
+    - ``v`` -- a discrete valuation on `F`, extending `v_K`
 
     It is assumed that `B` is reduced with respect to `v`, and that `g` does
     not lie in the `K`-span of `B`.
@@ -421,8 +421,10 @@ def make_reduced(v_K, g, B, v):
     from regular_models.RR_spaces.function_spaces import FunctionSpace
     K = v_K.domain()
     pi = v_K.uniformizer()
+    e = v_K(pi)
     # we want to normalize v_K
-    v_K = v_K/v_K(pi)
+    v_K = v_K/e
+    v =  v/e
     k = v_K.residue_field()
     k_v = v.residue_field()
     h = g
