@@ -57,7 +57,7 @@ However, these roots a separated on the component corresponding to `[v_0, v_1(x+
 
 For every irreducible factor of `f`, the minimal rnc-model contains a component that meets the divisor 
 defined by this factor transversally. In the following example, this is the component defined by the 
-valuation `[v_0, v_1(x) = 1/2]`.
+valuation `[v_0, v_1(x) = 1/2]`. ::
 
     sage: v_3 = QQ.valuation(3)
     sage: R.<x> = QQ[]
