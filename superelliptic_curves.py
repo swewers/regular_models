@@ -48,11 +48,11 @@ over a discretely valued field with odd residue characteristic. ::
     sage: v_3 = QQ.valuation(3)
     sage: integral_differentials(f,2,v_3)
     the lattice with basis [x, 3]
-    
+
     sage: v_5 = QQ.valuation(5)
     sage: integral_differentials(f,2,v_5)
     the lattice with basis [-x + 1, x]
-    
+
     sage: v_2 = QQ.valuation(2)
     sage: integral_differentials(f,2,v_2)
     Traceback (most recent call last):
@@ -61,8 +61,8 @@ over a discretely valued field with odd residue characteristic. ::
 
 
 It is also possible to compute the integral differentials for superelliptic curves
-`y^n = f(x)`, as long as the residue characteristic does not divide `n`. For example, 
-we can compute the integral differentials of the curve defined by `y^3 = x^4+2^6` 
+`y^n = f(x)`, as long as the residue characteristic does not divide `n`. For example,
+we can compute the integral differentials of the curve defined by `y^3 = x^4+2^6`
 over `\QQ_2`.  ::
 
     sage: R.<x> = QQ[]
@@ -71,7 +71,7 @@ over `\QQ_2`.  ::
     sage: integral_differentials(f,3,v_2)
     the lattice with basis [y - 4, 2*x, 4]
 
-Of course, the same computation is possible over an extension of `\QQ_2`, as well. 
+Of course, the same computation is possible over an extension of `\QQ_2`, as well.
 Here, let `L = \QQ_2(i)`.  ::
 
     sage: L.<i> = NumberField(x^2+1)
@@ -85,6 +85,7 @@ Here, let `L = \QQ_2(i)`.  ::
 The following is Example 5.2. in the preprint [KunzweilerWewers20]. ::
 
     sage: v_2 = QQ.valuation(2)
+    sage: R.<x> = QQ[]
     sage: f = (x^3 - 2^4)*((x+2)^2 + 2^3)*((x+2)^2 - 2^3)
     sage: M = integral_differentials(f,3,v_2); M
     the lattice with basis [x^3 - 4*x, x*y - 16, 2*y - 16, 4*x^2 - 16, 8*x - 16, 16]
@@ -108,8 +109,8 @@ We can also compute the integral differentials for curves defined over finite ex
 In the following, we compute the integral differentials of the curve defined by `y^3-x^4-2^6`
 over `QQ_2`and over `QQ_2(i)`.  ::
 
-    sage: 
-    
+    sage:
+
 
 The exponent of the superelliptic curve need not be prime for our algorithm to work.  ::
 
