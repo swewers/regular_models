@@ -38,7 +38,6 @@ AUTHORS:
 
 EXAMPLES::
 
-
     sage: from regular_models.superelliptic_curves import integral_differentials
 
 We can compute the lattice of integral differentials for hyperelliptic curves defined
