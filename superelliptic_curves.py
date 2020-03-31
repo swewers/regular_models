@@ -187,7 +187,7 @@ def defining_system(xi):
     F = J.elimination_ideal([x]).gens()[0]
     A = K['T1,T2']
     T1, T2 = A.gens()
-    return [A(F(T1,T2,1)), u, t]
+    return [A(F(T1, T2, 1)), u, t]
 
 
 def ord_dx(xi):
@@ -221,7 +221,7 @@ def ord_dx(xi):
     # with respect to `u`. By definition, `F_u` nonzero.
     # So the order of `dx = dt/t_x` is given by `v(F_u(u,t)) - v(t_x)`
     t_x = t.derivative()
-    #R = F.parent()
+    # R = F.parent()
     U, T = F.parent().gens()
     F_u = F.derivative(U)
     return v(F_u(u, t)) - v(t_x)
