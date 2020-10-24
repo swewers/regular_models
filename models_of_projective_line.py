@@ -27,8 +27,65 @@ AUTHORS:
 EXAMPLES::
 
     sage: from regular_models.models_of_projective_line import *
+    
+First, we illustrate some basic properties of rnc-models. Here, `D_K` is the divisor defined by some
+polynomial `f` over a discretely valued field `K` with ring of integers `R`.
 
-We compute the regular rnc-model from [KunzweilerWewers20]_, Example 8.1. ::
+If `f` splits over the residue field of `K` and has pairwise distinct roots (in the residue field), 
+then the projective line over `R` together with the closure of `D_K` is already the minimal rnc-model. ::
+
+    sage: v_3 = QQ.valuation(3)
+    sage: R.<x> = QQ[]
+    sage: f = x^3-x
+    sage: X = minimal_rnc_model(f, v_3)
+    sage: X.vertical_components()
+    [vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 0]
+
+    
+If two `K`-rational roots of `f` are distinct, their respective horizontal divisors are separated on 
+the minimal rnc-model. For example, the polynomial `f = x^3-x` has a double root modulo `2`. 
+However, these roots a separated on the component corresponding to `[v_0, v_1(x+1) = 1]`. ::
+    
+    sage: v_2 = QQ.valuation(2)
+    sage: R.<x> = QQ[]
+    sage: f = x^3-x
+    sage: X = minimal_rnc_model(f, v_2)
+    sage: X.vertical_components()
+    [vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 0,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x + 1) >= 1]
+
+
+For every irreducible factor of `f`, the minimal rnc-model contains a component that meets the divisor 
+defined by this factor transversally. In the following example, this is the component defined by the 
+valuation `[v_0, v_1(x) = 1/2]`. ::
+
+    sage: v_3 = QQ.valuation(3)
+    sage: R.<x> = QQ[]
+    sage: f = x^2+3
+    sage: X = minimal_rnc_model(f, v_3)
+    sage: X.vertical_components()
+    [vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 1/2,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 0,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 1]
+
+    
+We now compute the minimal rnc-model of the divisor `D_K` defined by `f = (x^2 + 3^4)((x-1)^2 - 3^3)`
+on the projective line over `QQ_3`. This is Example 5.1. in [KunzweilerWewers20]. ::
+
+    sage: v_3 = QQ.valuation(3)
+    sage: R.<x> = QQ[]
+    sage: f = (x^2+3^4)*((x-1)^2-3^3)
+    sage: X = minimal_rnc_model(f, v_3)
+    sage: X.vertical_components()
+    [vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x - 1) >= 3/2,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 2,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 0,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x - 1) >= 1,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 1,
+    vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x - 1) >= 2]
+
+
+Lastly, we compute the minimal rnc-model from [KunzweilerWewers20], Example 5.2. ::
 
     sage: v_2 = QQ.valuation(2)
     sage: R.<x> = QQ[]
@@ -44,6 +101,10 @@ We compute the regular rnc-model from [KunzweilerWewers20]_, Example 8.1. ::
     vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x + 2) >= 2,
     vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 2,
     vertical component corresponding to Point of type II on Berkovich line, corresponding to v(x) >= 3/2]
+    
+It is possible to obtain a graphical interpretation of the component tree. ::
+
+    sage: X.show_tree() #optional
 
 """
 
