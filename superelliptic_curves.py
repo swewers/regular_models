@@ -88,7 +88,7 @@ The following is Example 5.2. in the preprint [KunzweilerWewers20]. ::
     sage: R.<x> = QQ[]
     sage: f = (x^3 - 2^4)*((x+2)^2 + 2^3)*((x+2)^2 - 2^3)
     sage: M = integral_differentials(f,3,v_2); M
-    the lattice with basis [x^3 - 12*x+16, x*y, 2*y, 4*x^2 - 16, 8*x - 16, 16]
+    the lattice with basis [x^3 - 12*x + 16, x*y, 2*y, 4*x^2 - 16, 8*x - 16, 16]
 
 The lattice M lives in a Riemann-Roch space. For some applications (for example
 the numerical verification of the BSD conjecture), one is interested in
