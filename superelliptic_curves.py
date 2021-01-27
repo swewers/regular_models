@@ -307,3 +307,48 @@ def integral_differentials(f, n, v_K):
             m.append(("w{0}".format(i), -mv))
             i += 1
     return M_K.RR_lattice(m)
+
+def covolume(M):
+    r"""
+    Returns the covolume of the lattice M with respect to the canonical basis of `M_K`.
+    Note that this is only well-defined up to a unit in `O_K`.
+    
+    
+    INPUT:
+    
+    -``M`` - an `O_K`-lattice 
+    
+    OUTPUT:
+    
+    the covolume of `M`.
+    """
+    #M an O_K lattice
+    M_K = M.RR_space();
+    return (Matrix([M_K.function_space().vector(f) for f in M.basis()])).determinant()
+	
+
+
+def hyperelliptic_discriminant(f,v_K):
+    r"""
+    Returns the valuation of the hyperelliptic discriminant of the  curve Y
+    defined by y^2 = f(x). The hyperelliptic discriminant is a curve invariant 
+    (for a definition see [Section 2,  Kausz96]).
+    We assume that `v_K(2) = 0`.
+
+    INPUT:
+
+    - ``f`` - a monic, integral and separable polynomial of degree at least 3 over some field `K`
+    - ``v_K`` - a discrete valuation on `K` 
+
+    OUTPUT: The output is the valuation of the hyperelliptic discriminant.
+
+    EXAMPLE:
+
+        sage: 
+
+    """
+    
+    M = integral_differentials(f,2, v_K)
+    g = floor((f.degree()-1)/2)
+    return v_K(f.discriminant())*g-(8*g+4)*v_K(covolume(M))
+
