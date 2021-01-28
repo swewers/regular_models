@@ -316,13 +316,13 @@ def covolume(M):
     
     INPUT:
     
-    -``M`` - an `O_K`-lattice 
+    -``M`` - a full `O_K`-lattice in the vector space `M_K`
     
     OUTPUT:
     
     the covolume of `M`.
     """
-    #M an O_K lattice
+    from regular_models.RR_spaces.RR_lattices import RRSpace
     M_K = M.RR_space();
     return (Matrix([M_K.function_space().vector(f) for f in M.basis()])).determinant()
 	
@@ -330,7 +330,7 @@ def covolume(M):
 
 def hyperelliptic_discriminant(f,v_K):
     r"""
-    Returns the valuation of the hyperelliptic discriminant of the  curve Y
+    Returns the valuation of the hyperelliptic discriminant of the curve Y
     defined by y^2 = f(x). The hyperelliptic discriminant is a curve invariant 
     (for a definition see [Section 2,  Kausz96]).
     We assume that `v_K(2) = 0`.
@@ -347,7 +347,7 @@ def hyperelliptic_discriminant(f,v_K):
         sage: 
 
     """
-    
+    assert v_K(2) == 0, "2 must not divide the residue characteristic of K"
     M = integral_differentials(f,2, v_K)
     g = floor((f.degree()-1)/2)
     return v_K(f.discriminant())*g-(8*g+4)*v_K(covolume(M))
