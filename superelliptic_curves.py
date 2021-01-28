@@ -307,3 +307,55 @@ def integral_differentials(f, n, v_K):
             m.append(("w{0}".format(i), -mv))
             i += 1
     return M_K.RR_lattice(m)
+
+def covolume(M):
+    r"""
+    Returns the covolume of the lattice M with respect to the canonical basis of `M_K`.
+    Note that this is only well-defined up to a unit in `O_K`.
+    
+    
+    INPUT:
+    
+    -``M`` - a full `O_K`-lattice in the vector space `M_K`
+    
+    OUTPUT:
+    
+    the covolume of `M`.
+    """
+    from regular_models.RR_spaces.RR_lattices import RRSpace
+    M_K = M.RR_space();
+    return (Matrix([M_K.function_space().vector(f) for f in M.basis()])).determinant()
+	
+
+
+def order_hyperelliptic_discriminant(f,v_K):
+    r"""
+    Returns the order of the hyperelliptic discriminant of the curve Y
+    defined by y^2 = f(x). Write '\Delta' for the discriminant of this equation and 
+    '\omega = \frac{dx}{y} \land \dots \land x^{g-1}\frac{dx}{y}'. 
+    The hyperelliptic discriminant is 
+    '\Lambda := \Delta^{g} \cdot \omega^{\otimes 8g+4}'. It is a canonical element of the curve.
+    By the order of the hyperelliptic discriminant, we mean the order of vanishing of  
+    '\Lambda \in (\det M)^{8g+4}' at the prime ideal of '\O_K'. 
+    See for example [Kunzweiler20, Defnition 3.7]
+
+    INPUT:
+
+    - ``f`` - a monic, integral and separable polynomial of degree at least 3 over some field `K`
+    - ``v_K`` - a discrete valuation on `K` 
+
+    OUTPUT: The output is the order of the hyperelliptic discriminant.
+
+    EXAMPLE:
+
+        sage: f = (x^3-7^7)*(x^3-1)
+        sage: order_hyperelliptic_discriminant(f,v7)
+        8
+    """
+    assert v_K(2) == 0, "2 must not divide the residue characteristic of K"
+    if v_K(v_K.uniformizer()) != 1:
+        v_K = v_K/v_K(v_K.uniformizer())
+    M = integral_differentials(f,2, v_K)
+    g = floor((f.degree()-1)/2)
+    return v_K(f.discriminant())*g-(8*g+4)*v_K(covolume(M))
+
