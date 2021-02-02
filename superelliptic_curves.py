@@ -234,8 +234,24 @@ def ord_dx(xi):
         U, = S.gens()
         L = M.extension(F(U,T), names = ('U',))
         vL = vM.extensions(L)
-        vL = [w for w in vL if w(U) == 1/ev]
-        assert len(vL) == 1, "there is something wrong with the number of approximations"
+        vL = [w for w in vL if w(U) == v(u)] #w(U) = v(u) is a necessary (possibly not sufficient)
+        #condition for the valuation corresponding to the valuation v
+        #the following loop should eliminate the remaining valuations in vL
+        #that do not correspond to v
+        if len(vL) > 1:
+            f1 = R.hom(t, v.domain())
+            f2 = L.hom(u, base_morphism = f1)
+            while  len(vL) > 1:
+                #print statements only for debugging (to be deleted)
+                print('length of list:', len(vL)) 
+                #test whether the uniformizer for vL[0] is uniformizing for v as well.
+                if v(f2(vL[0].uniformizer())) != v(u): 
+                        print ('delete valuation', w, ' with uniformizer', w.uniformizer())
+                        vL = vL[1:]
+                #test whether the transcendental generator of vL0 has nonzero reduction
+                elif v(f2(vL[0].lift(vL[0].residue_ring().gen()))) != 0:
+                        print ('delete valuation', w, ' with uniformizer', w.uniformizer())
+                        vL = vL[1:]
         diff = different_of_finite_extension(vM, vL[0]) #returns the valuation of the different
     # The order of `dx = dt/t_x` is given by `v(diff) - v(t_x)` (see Proposition 7.9)
     t_x = t.derivative()
