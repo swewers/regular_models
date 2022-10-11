@@ -24,8 +24,8 @@ Thus, a basis is given by f_i(x,y)dx, i=1,..,6, where f_i are the functions on Y
 
 To run the code, you need
 
-- a recent version of Sage (>= 8.8 should do)
-- the Sage/Python package [MCLF](https://github.com/MCLF/mclf)
+- a recent version of Sage (>= 9.0 should do)
+- the Sage/Python package [MCLF](https://github.com/MCLF/mclf) (>= version 1.0.6)
 - the Sage/Python package [regular_models](https://github.com/swewers/regular_models) (this repository)
 
 We plan to expand the code to be able to handle more general classes of curves, and compute regular models of them. 
