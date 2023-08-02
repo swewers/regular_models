@@ -14,7 +14,7 @@ Under the condition that the exponent $n$ is invertible in $R$, our implementati
 
 For instance, consider **Example 5.2** from [KunzweilerWewers23].
 Let $Y$ be the hyperelliptic curve
-$$ Y: y^2 = (x^2-5)^3-5^5$$
+$$Y: y^2 = (x^2-5)^3-5^5$$
 defined over $\mathbb{Q}_5$.
 
 The input for our algorithm in this case is:
@@ -42,9 +42,10 @@ sage: n=3
 sage: integral_differentials(f,n,v5)
 the lattice with basis [x^2 - 5, y, 5*x, 25]
 ```
+So a basis for the integral differentials is $$((x^2-5)\frac{dx}{y^2}, \frac{dx}{y}, 5 x\frac{dx}{y^2}, 25 \frac{dx}{y^2})$$.
 
 For hyperelliptic curves $y^2 = f(x)$, our implementation can also be used to compute the order of the *hyperelliptic discriminant*
-$$\Lambda := \Delta^{g} \cdot \omega^{\otimes 8g+4}$$,
+$$\Lambda := \Delta^{g} \cdot \omega^{\otimes 8g+4},$$
 where $g$ is the genus of the curve, $\Delta$ the discriminant of $f$ and $\omega = \frac{dx}{y} \land \dots \land x^{g-1}\frac{dx}{y}$. This is a canonical element of the curve. In our first example, we obtain the following.
 
 ```
@@ -54,11 +55,6 @@ sage: a = order_hyperelliptic_discriminant(f,v5); a
 sage: a == g * v5(f.discriminant()) - (8*g+4)*v5(covolume(integral_differentials(f,2,v5)))
 True
 ```
-
-Let $Y$ be a hyperelliptic curve of genus $g$ over a local field $K$, defined by some equation of the form 
-$Y: y^2 = f(x).$ We write $\Delta$ for the discriminant of this equation and $\omega = \frac{dx}{y} \land \dots \land x^{g-1}\frac{dx}{y}$. We call 
-$$\Lambda := \Delta^{g} \cdot \omega^{\otimes 8g+4}$$ the *hyperelliptic discriminant*. 
-By the order of the hyperelliptic discriminant, $\text{ord}(\Lambda)$, we mean the order of vanishing of  $\Lambda \in (\det M)^{\otimes 8g+4}$ at the prime ideal of $O_K$, where $M$ denotes the lattice of integral differentials.
 
 More examples can be found in the Jupyter notebook `Examples.ipynb`.
 
